@@ -17,6 +17,14 @@ const VoiceAgent = () => {
   useEffect(() => {
     // Set the API key in localStorage for the @11labs/react package to use
     localStorage.setItem('xi-api-key', API_KEY);
+    
+    // Log to help debugging
+    console.log('API key set in localStorage');
+    
+    // Clean up function
+    return () => {
+      localStorage.removeItem('xi-api-key');
+    };
   }, []);
 
   const conversation = useConversation({
@@ -32,36 +40,57 @@ const VoiceAgent = () => {
       },
     },
     onMessage: (message) => {
+      console.log('Message received:', message);
       if (message.type === 'transcription' || message.type === 'response') {
         setMessages(prev => [...prev, { text: message.text, isUser: message.type === 'transcription' }]);
       }
+    },
+    onError: (error) => {
+      console.error('Conversation error:', error);
+    },
+    onConnect: () => {
+      console.log('Connected to ElevenLabs');
+    },
+    onDisconnect: () => {
+      console.log('Disconnected from ElevenLabs');
+      setIsListening(false);
     },
   });
 
   const toggleRecording = async () => {
     if (!isListening) {
       try {
+        console.log('Requesting microphone access');
         await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('Starting session with agent ID: YsPaIlxCwOfFJVodfkpI');
         await conversation.startSession({
           agentId: "YsPaIlxCwOfFJVodfkpI", // Using the provided agent ID
         });
         setIsListening(true);
+        console.log('Recording started');
       } catch (error) {
         console.error('Error starting recording:', error);
       }
     } else {
+      console.log('Ending session');
       await conversation.endSession();
       setIsListening(false);
+      console.log('Recording ended');
     }
   };
 
   const toggleMute = () => {
     setIsMuted(!isMuted);
     conversation.setVolume({ volume: isMuted ? 1 : 0 });
+    console.log(`Volume set to ${isMuted ? '1' : '0'}`);
   };
 
   const toggleLanguage = () => {
-    setLanguage(prev => prev === 'en' ? 'ta' : 'en');
+    setLanguage(prev => {
+      const newLanguage = prev === 'en' ? 'ta' : 'en';
+      console.log(`Language switched to ${newLanguage}`);
+      return newLanguage;
+    });
   };
 
   return (
