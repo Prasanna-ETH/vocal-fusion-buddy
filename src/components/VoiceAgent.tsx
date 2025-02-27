@@ -9,6 +9,15 @@ const VoiceAgent = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [messages, setMessages] = useState<Array<{ text: string; isUser: boolean }>>([]);
+  
+  // Initialize API key - using a public constant since this is a front-end only application
+  // Note: In production, this should be managed with a secure backend service
+  const API_KEY = "sk_3f1044e1633bef80fb3a7d671521df9588e377e042e91df7";
+
+  useEffect(() => {
+    // Set the API key in localStorage for the @11labs/react package to use
+    localStorage.setItem('xi-api-key', API_KEY);
+  }, []);
 
   const conversation = useConversation({
     overrides: {
@@ -34,7 +43,7 @@ const VoiceAgent = () => {
       try {
         await navigator.mediaDevices.getUserMedia({ audio: true });
         await conversation.startSession({
-          agentId: "default_agent", // Replace with your actual agent ID
+          agentId: "default_agent", // Replace with your actual agent ID when available
         });
         setIsListening(true);
       } catch (error) {
@@ -80,19 +89,26 @@ const VoiceAgent = () => {
 
           {/* Messages */}
           <div className="h-96 overflow-y-auto space-y-4 px-2">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={cn(
-                  "p-4 rounded-lg max-w-[80%]",
-                  message.isUser
-                    ? "bg-blue-50 ml-auto"
-                    : "bg-gray-50"
-                )}
-              >
-                <p className="text-gray-800">{message.text}</p>
+            {messages.length === 0 ? (
+              <div className="text-center text-gray-500 pt-32">
+                <p>Press the microphone button to start speaking</p>
+                <p className="text-sm mt-2">{language === 'en' ? 'Currently using English' : 'தமிழில் பேசவும்'}</p>
               </div>
-            ))}
+            ) : (
+              messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    "p-4 rounded-lg max-w-[80%]",
+                    message.isUser
+                      ? "bg-blue-50 ml-auto"
+                      : "bg-gray-50"
+                  )}
+                >
+                  <p className="text-gray-800">{message.text}</p>
+                </div>
+              ))
+            )}
           </div>
 
           {/* Controls */}
