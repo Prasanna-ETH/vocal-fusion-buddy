@@ -43,7 +43,7 @@ const VoiceAgent = () => {
       try {
         await navigator.mediaDevices.getUserMedia({ audio: true });
         await conversation.startSession({
-          agentId: "default_agent", // Replace with your actual agent ID when available
+          agentId: "YsPaIlxCwOfFJVodfkpI", // Using the provided agent ID
         });
         setIsListening(true);
       } catch (error) {
