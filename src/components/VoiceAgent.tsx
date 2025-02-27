@@ -63,11 +63,18 @@ const VoiceAgent = () => {
         console.log('Requesting microphone access');
         await navigator.mediaDevices.getUserMedia({ audio: true });
         console.log('Starting session with agent ID: YsPaIlxCwOfFJVodfkpI');
-        await conversation.startSession({
-          agentId: "YsPaIlxCwOfFJVodfkpI", // Using the provided agent ID
-        });
-        setIsListening(true);
-        console.log('Recording started');
+        await conversation.endSession(); // Ensure any existing session is properly closed
+        setTimeout(async () => {
+          try {
+            await conversation.startSession({
+              agentId: "YsPaIlxCwOfFJVodfkpI", // Using the provided agent ID
+            });
+            setIsListening(true);
+            console.log('Recording started');
+          } catch (error) {
+            console.error('Error starting session:', error);
+          }
+        }, 300); // Add a small delay to ensure connection is properly reset
       } catch (error) {
         console.error('Error starting recording:', error);
       }
